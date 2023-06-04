@@ -1,5 +1,55 @@
 69. inline views
+
 SELECT * FROM
 (SELECT DEPT_ID, AVG(SAL) AS AVERAGE_SALARY
 FROM EMP GROUP BY DEPT_ID) E
 WHERE E.AVERAGE_SALARY > 4000;
+
+71. Subquery factoring (the WITH clause)
+
+with emp2 as
+(SELECT DEPT_ID, AVG(SAL) AS AVERAGE_SALARY
+FROM EMP GROUP BY DEPT_ID)
+select * from emp2 e
+where e.average_salary > 4000;
+
+==================================================================================================================
+==================================================================================================================
+select * from emp
+where dept_id in (
+
+select dept_id from emp
+where sal > 3000 and birthdate >= date '1986-01-01'
+group by dept_id
+having count(*)>1
+)
+and sal > 3000
+and birthdate >= date '1986-01-01'
+;
+==================================================================================================================
+with filtered_emp as
+(select * from emp where sal> 3000 and birthdate >= date '1986-01-01')
+
+select * from filtered_emp
+where dept_id in (select dept_id from filtered_emp group by dept_id having count(*) >1);
+
+==================================================================================================================
+==================================================================================================================
+with subq1 (name, dept_id, phone, new_total_salary) as
+(select emp_name, dept_id, nvl(phone, 'NO PHONE'), sal * 1.25 + nvl(bonus,0) from emp)
+
+select * from subq1;
+
+==================================================================================================================
+
+with subq1 (name, dept_id, phone, new_total_salary) as
+(select emp_name, dept_id, nvl(phone, 'NO PHONE'), sal * 1.25 + nvl(bonus,0) from emp),
+
+subq2 as
+(select * from subq1 where new_total_salary < 5000)
+
+
+select * from subq2;
+
+
+==================================================================================================================
